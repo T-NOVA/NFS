@@ -85,21 +85,28 @@
 	</target>
 
 	<target name="resolve" depends="proxy" description="--> retreive dependencies with ivy">
-	    <property name="ivy.lib.dir" value="${lib.dir}"/>
+		<property name="ivy.lib.dir" value="${lib.dir}"/>
         <ivy:resolve transitive="false" />
 		<ivy:retrieve/>
 		<ivy:report todir="${build.dir}/ivy-report" graph="true"/>
-		<move todir="lib.no.deploy">
+		<copy todir="lib.no.deploy" verbose="true" overwrite="true" force="true">
 		    <fileset dir="${lib.dir}">
 		      	<include name="**/slf4j*.jar"/>
 		    </fileset>
-		</move>
-		<move todir="${web.dir}/WEB-INF/lib">
+		</copy>
+		<copy todir="${web.dir}/WEB-INF/lib" verbose="true" overwrite="true" force="true">
 		    <fileset dir="${lib.dir}">
 		     	<include name="**/primefaces*.jar"/>
 		     	<include name="**/gson*.jar"/>
 		    </fileset>
-		</move>
+		</copy>
+		<delete>
+		    <fileset dir="${lib.dir}">
+		      	<include name="**/slf4j*.jar"/>
+		     	<include name="**/primefaces*.jar"/>
+		     	<include name="**/gson*.jar"/>
+		    </fileset>
+		</delete>
 	</target>
 
 	<target name="server-file-check">
@@ -256,6 +263,10 @@
 				name="${rpm.name}" version="${rpm.version}" release="${rpm.release}" 
 				distribution="${rpm.distro}" architecture="${rpm.arch}" 
 		 		license="${rpm.license}" group="${rpm.group}" 
+				preInstallScript="${conf.build}/preInstall.sh" 
+				postInstallScript="${conf.build}/postInstall.sh"
+				preUninstallScript="${conf.build}/preUninstall.sh" 
+				postUninstallScript="${conf.build}/postUninstall.sh"
 				destination="prod/rpms" >
 		  	<rpmfileset prefix="${local.server.dir}/${TomEE.name}/bin" dir="${dist.TomEE.bin}" filemode="777"/>
 		  	<rpmfileset prefix="${local.server.dir}" dir="dist" filemode="755" />
