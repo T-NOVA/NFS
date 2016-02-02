@@ -6,13 +6,14 @@ The NFS has been written in java as a web application running on TomEE server, a
 
 ### Requirements
 The build require JRE 1.8 and ant 1.9. 
-The server has to be run on server with Linux OS and JRE 1.8 installed.
+The server has to be run on server with Linux OS, rpm and JRE 1.8 installed.
 
 ### Tools and Packages used
 * [jdk 1.8](http://www.oracle.com/technetwork/java/javase/overview/index.html) - Java virtual machine
 * [ant 1.9](http://http://ant.apache.org/) - build of Java applications
 * [ivy 2.4.0](http://ant.apache.org/ivy/) - Apache dependency manager
 * [redline](http://redline-rpm.org/index.html) - pure Java library for manipulating RPM
+* [rpm](http://rpm5.org/) - RPM Package Manager
 * [TomEE+](http://tomee.apache.org/apache-tomee.html) - Tomcat server with EE features
 * [HTMLWadlGenerator](https://github.com/romiawasthy/HTMLWadlGenerator) - Help generator
 * [H2](http://www.h2database.com/html/main.html) - H2 database
@@ -54,16 +55,15 @@ $ rpm -ivh nfs-1.0-0.noarch.rpm
 ### Configuration
 The default configuration of NFStore is:
 
--------------------|--------------------------------------|------------------------------------
- NAME              | DESCRIPTION                          | DEFAULT VALUE                      
--------------------|--------------------------------------|------------------------------------
- NFS_STORE_PATH	   | local store directory                | /usr/local/store 	                
- NFS_URL	       | NFStore URL used for set image links | https://api.t-nova.eu/NFS	        
- ORCHESTRATOR_URL  | orchestrator URL                     | https://api.t-nova.eu/orchestrator 
- TOMCAT_PROTOCOL   | NFStore protocol                     | https 	                            
- TOMCAT_IP	       | NFStore address                      | 0.0.0.0 (any address)	                        
- TOMCAT_HTTP_PORT  | NFStore port when protocol is http   | 80	                                
- TOMCAT_HTTPS_PORT | NFStore port when protocol is https  | 443	                            
+NAME | DESCRIPTION | DEFAULT VALUE                      
+---- | ----------- | -------------
+NFS_STORE_PATH | local store directory | /usr/local/store 	                
+NFS_URL | NFStore URL used for set image links | https://api.t-nova.eu/NFS	        
+ORCHESTRATOR_URL | orchestrator URL | https://api.t-nova.eu/orchestrator 
+TOMCAT_PROTOCOL | NFStore protocol | https 	                            
+TOMCAT_IP | NFStore address | 0.0.0.0 (any address)	                        
+TOMCAT_HTTP_PORT | NFStore port when protocol is http | 80	                                
+TOMCAT_HTTPS_PORT | NFStore port when protocol is https | 443	                            
 
 If changes are needed, you can modify the values inside file **/usr/local/nfs/bin/nfs.conf** using a text editor before start the server.
 This file contains commented rows with this variables so you should only uncomment and set required values.
