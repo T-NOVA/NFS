@@ -23,8 +23,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-//import org.apache.cxf.interceptor.InInterceptors;
-//import org.apache.cxf.interceptor.OutInterceptors;
+import org.apache.cxf.interceptor.InInterceptors;
+import org.apache.cxf.interceptor.OutInterceptors;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
@@ -70,6 +70,15 @@ public class VNFFileWS implements VNFFileWSInterface {
 			String provider = attachment.getHeader("Provider-ID");
 			String md5Sum = attachment.getHeader("MD5SUM");
 			String imageType = attachment.getHeader("Image-Type");
+
+			// temporary check inside header if not found inside attachments
+			if ( provider==null )
+				provider = getRequestHeader("Provider-ID");
+			if ( md5Sum==null )
+				md5Sum = getRequestHeader("MD5SUM");
+			if ( imageType==null )
+				imageType = getRequestHeader("Image-Type");
+			
 			// upload file
 			vnfFile = serviceBean.uploadVNFFile(fileName, md5Sum, provider, imageType);
 			writeFile(vnfFile, attachment.getDataHandler().getInputStream());
@@ -82,7 +91,7 @@ public class VNFFileWS implements VNFFileWSInterface {
 			return response;
 		} catch (ValidationException e) {
 			log.warn(e.getMessage());
-			serviceBean.endUseOfVNFFileOnError(fileName, true, true);
+			serviceBean.endUseOfVNFFileOnError(fileName, e.isParam(), e.isParam() );
 			return Response.status(e.getStatus()).entity(e.getMessage()).
 					type(MediaType.TEXT_PLAIN).build();
 		} catch (Exception e) {
@@ -102,6 +111,15 @@ public class VNFFileWS implements VNFFileWSInterface {
 			String provider = attachment.getHeader("Provider-ID");
 			String md5Sum = attachment.getHeader("MD5SUM");
 			String imageType = attachment.getHeader("Image-Type");
+			
+			// temporary check inside header if not found inside attachments
+			if ( provider==null )
+				provider = getRequestHeader("Provider-ID");
+			if ( md5Sum==null )
+				md5Sum = getRequestHeader("MD5SUM");
+			if ( imageType==null )
+				imageType = getRequestHeader("Image-Type");
+
 			// rename file to temporary file for restore it in case of error
 			file = serviceBean.getFile(fileName);
 			tmpFile = new File(storePath+File.separator+fileName+".upload_tmp");
@@ -169,26 +187,32 @@ public class VNFFileWS implements VNFFileWSInterface {
 	}
 
 	@Override
-	public Response download_VNFFile(String fileName) {
+	public Response download_VNFFile(String fileName, String contentType) {
 		try {
 			log.info("Download VNF File : {}",fileName);
-			VNFFile vnfFile = serviceBean.downloadVNFFile(fileName);
-			
-			FileDataSource dataSource = new FileDataSource(vnfFile.getFile(storePath));
-			MultivaluedMap<String, String> header = new MetadataMap<String, String>();
-			header.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-			header.add("Content-Transfer-Encoding", "binary");
-			header.add("Content-Disposition", "form-data;name=file;filename="+fileName);
-			header.add("MD5SUM", vnfFile.getMd5Sum());
-			header.add("Provider-ID", vnfFile.getProviderId().toString());
-			header.add("Image-Type", vnfFile.getImageType());
-			Attachment attachment = new Attachment(vnfFile.getName(), dataSource, header);
-			MultipartBody body = new MultipartBody(attachment);  
+			VNFFile vnfFile = serviceBean.downloadVNFFile(fileName, contentType);
+			ResponseBuilder builder = Response.status(Status.OK);
+			builder.header("Content-Disposition", "attachment; filename="+fileName);
 
-			Response response = Response.status(Status.OK).
-					header("Content-Disposition", "attachment; filename="+fileName).
-					entity(body).build();
-			return response;
+			if ( contentType==null ) {
+				builder.header("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
+				builder.header("Content-Length", vnfFile.getFile(storePath).length());
+				builder.header("Content-MD5", vnfFile.getMd5Sum());
+				builder.entity((Object) vnfFile.getFile(storePath));
+			} else {
+				FileDataSource dataSource = new FileDataSource(vnfFile.getFile(storePath));
+				MultivaluedMap<String, String> header = new MetadataMap<String, String>();
+				header.add("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
+				header.add("Content-Transfer-Encoding", "binary");
+				header.add("Content-Disposition", "form-data;name=file;filename="+fileName);
+				header.add("MD5SUM", vnfFile.getMd5Sum());
+				header.add("Provider-ID", vnfFile.getProviderId().toString());
+				header.add("Image-Type", vnfFile.getImageType());
+				Attachment attachment = new Attachment(vnfFile.getName(), dataSource, header);
+				MultipartBody body = new MultipartBody(attachment);  
+				builder.entity(body);
+			}
+			return builder.build();
 		} catch (ValidationException e) {
 			log.warn(e.getMessage());
 			return Response.status(e.getStatus()).entity(e.getMessage()).
@@ -200,7 +224,7 @@ public class VNFFileWS implements VNFFileWSInterface {
 					type(MediaType.TEXT_PLAIN).build();
 		}
 	}
-	
+
 	@Override
 	public Response get_VNFFile_list(Integer providerId) {
 		log.info("Get VNF File list");
@@ -239,4 +263,10 @@ public class VNFFileWS implements VNFFileWSInterface {
 		return tokens.get(0);
 	}
 
+	private String getRequestHeader(String header) {
+		List<String> headerList = headers.getRequestHeader(header);
+		if ( headerList!=null && headerList.size()!=0 ) 
+			return headerList.get(0);
+		return null;
+	}
 }

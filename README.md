@@ -1,11 +1,11 @@
 # T-NOVA WP5
 
 ## Network Function Store server
-The Network Function Store is mainly a repository for the VNFs’ software images and their metadata descriptions. 
+The Network Function Store is mainly a repository for the VNFs software images and their metadata descriptions.<br/>
 The NFS has been written in java as a web application running on TomEE server, a tomcat server with java EE extensions.
 
 ### Requirements
-The build require JRE 1.8 and ant 1.9. 
+The build require JRE 1.8 and ant 1.9. <br/>
 The server has to be run on server with Linux OS, rpm and JRE 1.8 installed.
 
 ### Tools and Packages used
@@ -43,10 +43,10 @@ $ ant -lib lib.no.deploy
 ```
 
 ### Installation
-The build produce an rpm into directory prod/rpms containing all the code needed to install the service.
+The build produce an rpm into directory prod/rpms containing all the code needed to install the service.<br/>
 The NFStore will be installed as a standard linux SysVinit service.
 
-After uploading the rpm on the server install it as *root* user
+After uploading the rpm on the server install it **as *root* user**
 
 ```sh
 $ rpm -ivh nfs-1.0-0.noarch.rpm
@@ -57,16 +57,16 @@ The default configuration of NFStore is:
 
 NAME | DESCRIPTION | DEFAULT VALUE                      
 ---- | ----------- | -------------
-NFS_STORE_PATH | local store directory | /usr/local/store 	                
-NFS_URL | NFStore URL used for set image links | https://api.t-nova.eu/NFS	        
-ORCHESTRATOR_URL | orchestrator URL | https://api.t-nova.eu/orchestrator 
-TOMCAT_PROTOCOL | NFStore protocol | https 	                            
-TOMCAT_IP | NFStore address | 0.0.0.0 (any address)	                        
-TOMCAT_HTTP_PORT | NFStore port when protocol is http | 80	                                
-TOMCAT_HTTPS_PORT | NFStore port when protocol is https | 443	                            
+*NFS_STORE_PATH* | local store directory | /usr/local/store 	                
+*NFS_URL* | NFStore URL used for set image links | https://apis.t-nova.eu/NFS	        
+*ORCHESTRATOR_URL* | orchestrator URL | https://apis.t-nova.eu/orchestrator 
+*TOMCAT_PROTOCOL* | NFStore protocol | https 	                            
+*TOMCAT_IP* | NFStore address | 0.0.0.0 (any address)	                        
+*TOMCAT_HTTP_PORT* | NFStore port when protocol is http | 80	                                
+*TOMCAT_HTTPS_PORT* | NFStore port when protocol is https | 443	                            
 
-If changes are needed, you can modify the values inside file **/usr/local/nfs/bin/nfs.conf** using a text editor before start the server.
-This file contains commented rows with this variables so you should only uncomment and set required values.
+If changes are needed, you can modify the values inside file **/usr/local/nfs/bin/nfs.conf** using a text editor before start the server.<br/>
+This file contains commented rows with this variables so you should only uncomment what you need and set required values.
 
 ### Run NFS service
 ```sh
@@ -75,7 +75,7 @@ Starting nfs (via systemctl):                              [  OK  ]
 $
 ```
 
-The Network Function Store is available at URL [http://127.0.0.1:8080/NFS](http://127.0.0.1:8080/NFS)
+The Network Function Store is available at default URL [http://127.0.0.1:8080/NFS](http://127.0.0.1:8080/NFS)
 
 ### Stop NFS service
 ```sh
@@ -102,7 +102,9 @@ $
 ```
 
 ### NFS API Documentation
-The Interface documentation is available on [.](INTERFACE.md)
+The NFS interfaces can be mainly divided in 2 parts:
+* [Files Interface](files_interface.md).
+* [VNF Descriptor Interface](vnfds_interface.md).
 
 The server is also able to generated directly a basic documentation in html format using URL
 [http://127.0.0.1:8080/NFS?_wadl&_type=text/html](http://127.0.0.1:8080/NFS?_wadl&_type=text/html).
@@ -110,14 +112,14 @@ The server is also able to generated directly a basic documentation in html form
 Note that these informations are not complete because the used library has some restrictions.
 
 ### Tests
-Tests are available in `functionalTest` directory of Git repository and can be run using robotframework tools loading directory `test.suite`.
+Tests are available in `functionalTest` directory of repository and can be run using robotframework tools loading directory `test.suite`.
 
 Robotframework and necessary libraries can be easy installed using `pip` on your system after python installation.
 
 ```sh
 $ pip install <object to install>
 ```
-Note that some libraries are local like Http requests library that is modified to support attachments on REST requests.
+Note that some libraries are local like Http requests library that is modified to support attachments on REST requests; local libraries that should be used are available into 'functionsTest/python.lib' directory. 
 
 ### Tests configuration
 Is possible to change some configuration changing values available on ServerSetting.html file.

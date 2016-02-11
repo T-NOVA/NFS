@@ -39,13 +39,19 @@ public class NetworkFunctionStoreFileValidator {
 		VNFFile vnfFile = em.find(VNFFile.class, fileName);
 		if ( vnfFile==null ) {
 			vnfFile = new VNFFile(fileName);
+			// check if file is into store (upload not possible)
+			if ( vnfFile.getFile(storePath).exists() )
+				throw new ValidationException("file "+vnfFile.getName()+" present but not found into db", 
+						Status.INTERNAL_SERVER_ERROR, true);
 		} else {
 			log.debug("status={}", vnfFile.getStatus());
+			// file already into db; check if available (upload not possible)
 			if ( !vnfFile.getStatus().equals(VNFFileStatusEnum.NOT_AVAILABLE) )
 				throw new ValidationException("file "+fileName+" already present into DB");
+			// check if file is into store (upload not possible)
+			if ( vnfFile.getFile(storePath).exists() )
+				throw new ValidationException("file "+vnfFile.getName()+" already present", false);
 		}
-		if ( vnfFile.getFile(storePath).exists() )
-			throw new ValidationException("file "+vnfFile.getName()+" already present");
 		vnfFile.setProviderId(providerId);
 		vnfFile.setMd5Sum(md5Sum);
 		if ( imageType==null || imageType.isEmpty() )
@@ -91,8 +97,11 @@ public class NetworkFunctionStoreFileValidator {
 		return vnfFile;
 	}
 	
-	public VNFFile validateDownload (String fileName) 
+	public VNFFile validateDownload (String fileName, String contentType) 
 			throws ValidationException {
+		if ( contentType!=null && !contentType.equals("multipart") )
+			throw new ValidationException("Unknown required content type "+contentType, 
+					Status.NOT_FOUND);
 		VNFFile vnfFile = em.find(VNFFile.class, fileName);
 		if ( vnfFile==null )
 			throw new ValidationException("Not found VNFFile with name "+fileName, 

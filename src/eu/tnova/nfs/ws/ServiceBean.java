@@ -132,10 +132,10 @@ public class ServiceBean {
 		return vnfFile;
 	}
 
-	public VNFFile downloadVNFFile(String fileName) 
+	public VNFFile downloadVNFFile(String fileName, String contentType) 
 			throws ValidationException {
 		log.debug("downloadVNFFile {}", fileName);
-		VNFFile vnfFile = fileValidator.validateDownload(fileName);
+		VNFFile vnfFile = fileValidator.validateDownload(fileName, contentType);
 		em.flush();
 		//		log.debug("end downloadVNFFile {}", fileName);
 		return vnfFile;

@@ -512,6 +512,55 @@ td.name, th.name {
 <td></td>
 </tr>
 <tr>
+<td class="name"><a name="test_Upload image when image already available">Upload image when image already available</a></td>
+<td>[Tags]</td>
+<td>FILESOP</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${fileName}=</td>
+<td>Get From List</td>
+<td>${VNFImageList}</td>
+<td>1</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${file}=</td>
+<td>Get Binary File</td>
+<td>${FILE_DIR}${/}${filename}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${md5sum}=</td>
+<td>md5_for_file</td>
+<td>${FILE_DIR}</td>
+<td>${fileName}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Upload file</td>
+<td>${fileName}</td>
+<td>${file}</td>
+<td>${md5sum}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>...</td>
+<td>1</td>
+<td>qcow</td>
+<td>400</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
 <td class="name"><a name="test_Update image without MD5SUM">Update image without MD5SUM</a></td>
 <td>[Tags]</td>
 <td>FILESOP</td>

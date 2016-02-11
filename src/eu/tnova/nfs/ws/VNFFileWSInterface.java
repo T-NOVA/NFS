@@ -63,7 +63,8 @@ public interface VNFFileWSInterface {
 		   @Description(value = "Virtual Network Function Image file", target = DocTarget.RETURN),
 		})
 	public Response download_VNFFile(
-		@Description("name of file to download") @PathParam("fileName") @NotNull String fileName);
+		@Description("name of file to download") @PathParam("fileName") @NotNull String fileName,
+		@Description("name of file to download") @QueryParam("contentType") String contentType);
 
 	@GET 
 	@Produces (MediaType.APPLICATION_JSON)

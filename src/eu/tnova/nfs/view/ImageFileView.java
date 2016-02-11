@@ -123,7 +123,7 @@ public class ImageFileView implements Serializable {
 			return null;
 		}
 		try {
-			donwloadVNFFile = serviceBean.downloadVNFFile(selectedImageFile.getName());
+			donwloadVNFFile = serviceBean.downloadVNFFile(selectedImageFile.getName(),null);
 			File file = donwloadVNFFile.getFile(storePath);
 			return new DefaultStreamedContent(new FileInputStream(file.getPath()), "application/octet-stream", selectedImageFile.getName());
 		} catch (Exception e) {

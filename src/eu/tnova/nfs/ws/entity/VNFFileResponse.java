@@ -26,8 +26,10 @@ public class VNFFileResponse {
 
 	public VNFFileResponse(VNFFile vnfFile) {
 		name = vnfFile.getName();
-		if ( vnfFile.getVnfDescriptors()!=null ) {
-			for (VNFDescriptor vnfd: vnfFile.getVnfDescriptors() )
+		if ( vnfFile.getVnfDescriptors()==null )
+			return;
+		for (VNFDescriptor vnfd: vnfFile.getVnfDescriptors() ) {
+			if ( !vnfdId.contains(vnfd.getId()) )
 				vnfdId.add(vnfd.getId());
 		}
 	}

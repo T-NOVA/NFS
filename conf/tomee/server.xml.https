@@ -25,8 +25,9 @@
 	<Service name="Catalina">
 		<Connector address="%ADDRESS%" 
 			port="%HTTPS_PORT%"
-			connectionTimeout="20000"
-			disableUploadTimeout="true" 
+			connectionTimeout="3600000"
+			connectionUploadTimeout="3600000"
+			disableUploadTimeout="true"
 			protocol="org.apache.coyote.http11.Http11Protocol" 
 			maxThreads="150" 
 			SSLEnabled="true"

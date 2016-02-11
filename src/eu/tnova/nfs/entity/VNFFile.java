@@ -140,7 +140,7 @@ public class VNFFile {
 		if ( !this.md5Sum.toUpperCase().equals(md5Sum.toUpperCase()) ) {
 			throw new ValidationException(
 					"wrong checksum : "+md5Sum+" instead "+this.md5Sum,
-					Status.CONFLICT);
+					Status.CONFLICT, true);
 		}
 		return len;
 	}

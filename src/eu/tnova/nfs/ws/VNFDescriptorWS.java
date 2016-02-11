@@ -17,8 +17,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-//import org.apache.cxf.interceptor.InInterceptors;
-//import org.apache.cxf.interceptor.OutInterceptors;
+import org.apache.cxf.interceptor.InInterceptors;
+import org.apache.cxf.interceptor.OutInterceptors;
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
