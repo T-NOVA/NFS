@@ -9,8 +9,6 @@ import com.google.gson.annotations.SerializedName;
 public class VNFOrchestratorRequest {
 	@SerializedName("name") @XmlElement(name="name")
 	private String name;
-	@SerializedName("vnf-image") @XmlElement(name="vnf-image")
-	private String vnfImage;
 	@SerializedName("vnf-manager") @XmlElement(name="vnf-manager")
 	private String vnfManager;
 	@SerializedName("vnfd") @XmlElement(name="vnfd")
@@ -24,12 +22,6 @@ public class VNFOrchestratorRequest {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getVnfImage() {
-		return vnfImage;
-	}
-	public void setVnfImage(String vnfImage) {
-		this.vnfImage = vnfImage;
 	}
 	public String getVnfManager() {
 		return vnfManager;

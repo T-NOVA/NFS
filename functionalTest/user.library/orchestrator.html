@@ -203,7 +203,7 @@ example:\n<br>
 <td>[Arguments]</td>
 <td>${vnf}</td>
 <td>${vnfFileName}</td>
-<td>${responseStatus}=201</td>
+<td>${responseStatus}=200</td>
 </tr>
 <tr>
 <td class="name"></td>
@@ -316,6 +316,55 @@ example:\n<br>
 <td>DELETE</td>
 <td>${ORCHESTRATOR_PATH}/${vnfId}</td>
 <td>${responseStatus}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"><a name="keyword_Add Orchestrator Stub Get VNF List">Add Orchestrator Stub Get VNF List</a></td>
+<td>[Arguments]</td>
+<td>${body}</td>
+<td>${responseStatus}=200</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Return From Keyword If</td>
+<td>'${ORCHESTRATOR_ADDRESS}'!='${LOCALHOST}'</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Log</td>
+<td>Add Orchestrator POST Stub</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>create wiremock stub</td>
+<td>GET</td>
+<td>${ORCHESTRATOR_PATH}</td>
+<td>${responseStatus}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>...</td>
+<td></td>
+<td></td>
+<td>${EMPTY}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>...</td>
+<td>${body}</td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td class="name"></td>

@@ -1,5 +1,4 @@
 {
-	"name":"vnf-one",
-	"vnf-image":"https://apis.t-nova.eu/v1/nfstore/vnfs/123/image",
-	"vnf-manager":"manager-one"
+	"name":"TEMP",
+	"vnf-manager":"TEMP"
 }

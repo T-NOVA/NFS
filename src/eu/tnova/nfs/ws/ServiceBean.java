@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
@@ -29,6 +31,8 @@ import eu.tnova.nfs.entity.VNFFileStatusEnum;
 import eu.tnova.nfs.exception.ValidationException;
 import eu.tnova.nfs.producers.EnvValue;
 import eu.tnova.nfs.ws.entity.VNFFileListResponse;
+import eu.tnova.nfs.ws.orchestrator.OrchestratorBeanInterface;
+import eu.tnova.nfs.ws.orchestrator.OrchestratorOperationTypeEnum;
 import eu.tnova.nfs.ws.validator.NetworkFunctionStoreDescriptorValidator;
 import eu.tnova.nfs.ws.validator.NetworkFunctionStoreFileValidator;
 
@@ -42,7 +46,8 @@ public class ServiceBean {
 	@Inject @EnvValue(EnvValue.nfsUrl) private String nfs;
 	@Inject private NetworkFunctionStoreDescriptorValidator vnfdValidator;
 	@Inject private NetworkFunctionStoreFileValidator fileValidator;
-	@Inject private OrchestratorWSClient orchestratorClient;
+//	@Inject private OrchestratorWSClient orchestratorClient;
+	@EJB(beanName="OrchestratorBean") private OrchestratorBeanInterface orchestratorBean;
 
 	public ServiceBean() {
 	}
@@ -50,7 +55,7 @@ public class ServiceBean {
 	@PostConstruct
 	@SuppressWarnings("unchecked")
 	public void init() {
-		log.debug("FileServiceBean started");
+		log.debug("ServiceBean started");
 		// check files and align db availability
 		log.debug("Check files availability");
 		List<String> storeFiles = getStoreFiles();
@@ -80,7 +85,7 @@ public class ServiceBean {
 
 	@PreDestroy
 	protected void destroy() {
-		log.debug("FileServiceBean stopped");
+		log.debug("ServiceBean stopped");
 	}
 
 	public VNFFile uploadVNFFile(String fileName, String md5Sum, String provider, String imageType) 
@@ -148,6 +153,11 @@ public class ServiceBean {
 		return vnfFile;
 	}
 	
+	public VNFFile getVNFFile(String fileName) throws ValidationException {
+		log.debug("getVNFFile {}", fileName);
+		return fileValidator.validateDownload(fileName, null);
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<VNFFile> deleteVNFFile(String fileName) 
 			throws ValidationException, Exception {
@@ -241,6 +251,12 @@ public class ServiceBean {
 			throw new ValidationException("Error generating file URL", Status.INTERNAL_SERVER_ERROR);
 		}
 	}
+	public VNFDescriptor updateVNFDescriptor(VNFDescriptor vnfDescriptor) {
+		VNFDescriptor vnfd = em.merge(vnfDescriptor);
+		em.flush();
+		return vnfd;
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<VNFDescriptor> deleteVNFDescriptor(Integer vnfdId) 
 			throws ValidationException {
@@ -258,17 +274,48 @@ public class ServiceBean {
 		em.flush();
 		return vnfds;
 	}
-	public String getVNFDescriptor(Integer vnfdId) 
+	public VNFDescriptor getVNFDescriptor(Integer vnfdId) 
 			throws ValidationException {
 		log.debug("getVNFDescriptor {}", vnfdId);
 		VNFDescriptor vnfDescriptor = vnfdValidator.validateGet(vnfdId);
-		return vnfDescriptor.getJson();
+		return vnfDescriptor;
 	}
 	@SuppressWarnings("unchecked")
 	public List<VNFDescriptor> getVNFDescriptors() {
 		return em.createNamedQuery(VNFDescriptor.QUERY_READ_ALL).getResultList();
 	}
+	public Map<Integer,VNFDescriptor> getVNFDescriptorsMap() {
+		List<VNFDescriptor> vnfds = getVNFDescriptors();
+		Map<Integer,VNFDescriptor> vnfdsMap = new HashMap<Integer,VNFDescriptor>();
+		for ( VNFDescriptor vnfd: vnfds )
+			vnfdsMap.put(vnfd.getId(), vnfd);
+		return vnfdsMap;
+	}
 
+//	@Schedule(second = "0", minute = "*/10", hour = "*")
+//	private void VNFCheck() {
+//		log.debug("VNFCheck");
+//		List<VNFDescriptor> vnfds = getVNFDescriptors();
+//		for ( VNFDescriptor vnfd : vnfds ) {
+//			try {
+//				if ( !vnfd.isVnfCreated() ) {
+//					if ( allFilesAreAvailable(vnfd) )
+//						orchestratorClient.create_VNF(vnfd, null);
+//				} else {
+//					if ( !allFilesAreAvailable(vnfd) )
+//						orchestratorClient.delete_VNF(vnfd, null);
+//				}
+//
+//			} catch (Exception e) {
+//				log.error("VNFCheck : problem VNF notification to orchestrator : {}", e.getMessage());
+//			}
+//			try {
+//				em.merge(vnfd);
+//			} catch (Exception e) {
+//			}
+//		}
+//	}
+	
 	public void sendNotificationToOrchestrator(
 			OrchestratorOperationTypeEnum operation, VNFFile vnfFile, String userToker) {
 		sendNotificationToOrchestrator(operation, vnfFile.getVnfDescriptors(), userToker);
@@ -277,54 +324,58 @@ public class ServiceBean {
 	public void sendNotificationToOrchestrator(
 			OrchestratorOperationTypeEnum operation, List<?> objects, String userToker) {
 		List<VNFDescriptor> vnfDescriptors = new ArrayList<VNFDescriptor>();
-		if ( objects!=null && !objects.isEmpty() ) {
-			if ( objects.get(0).getClass().equals(VNFFile.class) ) {
-				for ( VNFFile vnfFile: (List<VNFFile>)objects ) {
-					vnfDescriptors.removeAll(vnfFile.getVnfDescriptors());
-					vnfDescriptors.addAll(vnfFile.getVnfDescriptors());
-				}
-			} else if ( objects.get(0).getClass().equals(VNFDescriptor.class) ) {
-				vnfDescriptors = (List<VNFDescriptor>) objects;
-
+		if ( objects==null || objects.isEmpty() )
+			return;
+		if ( objects.get(0).getClass().equals(VNFFile.class) ) {
+			for ( VNFFile vnfFile: (List<VNFFile>)objects ) {
+				vnfDescriptors.removeAll(vnfFile.getVnfDescriptors());
+				vnfDescriptors.addAll(vnfFile.getVnfDescriptors());
 			}
-			for ( VNFDescriptor vnfDescriptor: vnfDescriptors )
-				sendNotificationToOrchestrator(operation, vnfDescriptor, userToker);
+		} else if ( objects.get(0).getClass().equals(VNFDescriptor.class) ) {
+			vnfDescriptors = (List<VNFDescriptor>) objects;
 		}
+		for ( VNFDescriptor vnfDescriptor: vnfDescriptors )
+			sendNotificationToOrchestrator(operation, vnfDescriptor, userToker);
 	}
 	public void sendNotificationToOrchestrator(
 			OrchestratorOperationTypeEnum operation, VNFDescriptor vnfDescriptor, String userToker) {
 		try {
 			switch (operation) {
 			case CREATE:
-				if ( vnfDescriptor.getVnfId()!=null ) {
-					log.error("Found vnf Id not null for {} operation", operation);
-					return;
-				}
-				if ( allFilesAreAvailable(vnfDescriptor) ) {
-					orchestratorClient.create_VNF(vnfDescriptor, userToker);
-				}
+				orchestratorBean.create(vnfDescriptor, userToker);
+//				if ( vnfDescriptor.isVnfCreated() ) {
+//					log.error("VNF already created for {} operation", operation);
+//					return;
+//				}
+//				if ( allFilesAreAvailable(vnfDescriptor) ) {
+//					orchestratorClient.create_VNF(vnfDescriptor, userToker);
+//				}
 				break;
 			case UPDATE:
-				if ( vnfDescriptor.getVnfId()==null ) {
-					log.error("Found vnf Id null for {} operation", operation);
-					return;
-				}
-				if ( allFilesAreAvailable(vnfDescriptor) ) {
-					orchestratorClient.update_VNF(vnfDescriptor, userToker);
-				}
+				orchestratorBean.update(vnfDescriptor, userToker);
+//				if ( !vnfDescriptor.isVnfCreated() ) {
+//					log.error("VNF not created for {} operation", operation);
+//					return;
+//				}
+//				if ( allFilesAreAvailable(vnfDescriptor) ) {
+//					orchestratorClient.update_VNF(vnfDescriptor, userToker);
+//				}
 				break;
 			case DELETE:
-				if ( vnfDescriptor.getVnfId()==null )
-					return;
-				if ( !allFilesAreAvailable(vnfDescriptor) ) {
-					orchestratorClient.delete_VNF(vnfDescriptor, userToker);
-				}
+				orchestratorBean.delete(vnfDescriptor, userToker);
+//				if ( !vnfDescriptor.isVnfCreated() ) {
+//					log.error("VNF not created for {} operation", operation);
+//					return;
+//				}
+//				if ( !allFilesAreAvailable(vnfDescriptor) ) {
+//					orchestratorClient.delete_VNF(vnfDescriptor, userToker);
+//				}
 				break;
 			}
-			try {
-				em.merge(vnfDescriptor);
-			} catch (Exception e) {
-			}
+//			try {
+//				em.merge(vnfDescriptor);
+//			} catch (Exception e) {
+//			}
 		} catch (Exception e) {
 			log.error("problem notification of VNF {} to orchestrator : {}",
 					operation, e.getMessage());
@@ -384,46 +435,20 @@ public class ServiceBean {
 			vnfDescriptor.getFiles().add(vnfFile);
 		}
 	}
-	private boolean allFilesAreAvailable(VNFDescriptor vnfDescriptor) {
-		Map<String, VNFFile> files = vnfDescriptor.getFilesMap();
-		for ( String imageName : vnfDescriptor.getvmImagesFileNames() ) {
-			VNFFile image = files.get(imageName);
-			if ( image.getStatus().equals(VNFFileStatusEnum.NOT_AVAILABLE) || 
-					image.getStatus().equals(VNFFileStatusEnum.UPLOAD) )
-				return false;
-			File imageFile = image.getFile(storePath);
-			if ( !imageFile.exists() )
-				return false;
-		}
-		return true;
-	}
-	
-//	private boolean allFilesAreAvailableAndCorrect(VNFDescriptor vnfDescriptor) {
+//	private boolean allFilesAreAvailable(VNFDescriptor vnfDescriptor) {
 //		Map<String, VNFFile> files = vnfDescriptor.getFilesMap();
 //		for ( String imageName : vnfDescriptor.getvmImagesFileNames() ) {
 //			VNFFile image = files.get(imageName);
-//			VNFFile imageMd5 = files.get(imageName+".md5");
 //			if ( image.getStatus().equals(VNFFileStatusEnum.NOT_AVAILABLE) || 
 //					image.getStatus().equals(VNFFileStatusEnum.UPLOAD) )
 //				return false;
-//			if ( imageMd5.getStatus().equals(VNFFileStatusEnum.NOT_AVAILABLE) || 
-//					imageMd5.getStatus().equals(VNFFileStatusEnum.UPLOAD) )
-//				return false;
 //			File imageFile = image.getFile(storePath);
-//			File md5File = imageMd5.getFile(storePath);
-//			if ( !imageFile.exists() || !md5File.exists() )
+//			if ( !imageFile.exists() )
 //				return false;
-//			try {
-//				String md5 = new String(Files.readAllBytes(Paths.get(storePath+File.separator+imageMd5.getName())));
-//				if ( !image.getMd5Sum().equals(md5) )
-//					return false;
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				return false;
-//			}
 //		}
 //		return true;
 //	}
+
 	private void deleteVnfDescriptor (VNFDescriptor vnfDescriptor) 
 			throws ValidationException {
 		for ( VNFFile vnfFile : vnfDescriptor.getFiles() ) {
@@ -456,30 +481,5 @@ public class ServiceBean {
 			message += constraintViolation.getMessage()+"\n";
 		return new ValidationException(message, Status.BAD_REQUEST);
 	}
-
-//	private void changeVmImages(VNFDescriptor vnfDescriptor) throws MalformedURLException {
-//		Gson gson = new Gson();
-//		JsonElement jsonElement = gson.fromJson(vnfDescriptor.getJson(), JsonElement.class);
-//		JsonArray vdus = jsonElement.getAsJsonObject().getAsJsonArray(VirtualDeploymentUnit.VDU);
-//		for ( int i=0; i<vdus.size(); i++ ) {
-//			JsonObject obj = vdus.get(i).getAsJsonObject();
-//			JsonElement imageElement = obj.get(VirtualDeploymentUnit.VM_IMAGE);
-//			if ( imageElement==null ) {
-//				log.warn("Not found {} value", VirtualDeploymentUnit.VM_IMAGE);
-//				continue;
-//			}
-//			String image = imageElement.getAsString();
-//			if ( image==null || image.isEmpty()) {
-//				log.warn("Empty {} value",VirtualDeploymentUnit.VM_IMAGE);
-//				continue;
-//			}
-//			String[] parts = image.split("/");
-//			String uri = new URL(nfs)+"/files/"+parts[parts.length-1];
-//			log.debug("Change {} from {} to {}", VirtualDeploymentUnit.VM_IMAGE, image, uri);
-//			obj.addProperty(VirtualDeploymentUnit.VM_IMAGE, uri);
-//		}
-//		vnfDescriptor.setJson(gson.toJson(jsonElement));
-//		vnfDescriptor.setVnfd(gson.fromJson(vnfDescriptor.getJson(), VNFD.class));
-//	}
 
 }

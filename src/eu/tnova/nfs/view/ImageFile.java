@@ -9,14 +9,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
+
 @SuppressWarnings("serial")
 public class ImageFile implements Serializable {
 	private String name;
 	private String md5Sum;
+	private String type;
 	private Integer providerId;
 	private Long size;
 	private Date lastModifiedDate;
-	private List<Integer> vnfds = new ArrayList<Integer>();
+	private List<VNFDescriptor> vnfds = new ArrayList<VNFDescriptor>();
 
 	public ImageFile(VNFFile vnfFile, String storePath) {
 		this.name = vnfFile.getName();
@@ -25,9 +29,11 @@ public class ImageFile implements Serializable {
 		File file = vnfFile.getFile(storePath);
 		this.size = Long.valueOf(file.length());
 		this.lastModifiedDate = new Date(file.lastModified());
-		for (VNFDescriptor vnfDescriptor : vnfFile.getVnfDescriptors()) {
-			this.vnfds.add(vnfDescriptor.getId());
-		}
+		this.vnfds = vnfFile.getVnfDescriptors();
+		type = vnfFile.getImageType();
+//		for (VNFDescriptor vnfDescriptor : vnfFile.getVnfDescriptors()) {
+//			this.vnfds.add(vnfDescriptor.getId());
+//		}
 	}
 
 	public String getName() {
@@ -44,10 +50,10 @@ public class ImageFile implements Serializable {
 		this.md5Sum = md5Sum;
 	}
 
-	public List<Integer> getVnfds() {
+	public List<VNFDescriptor> getVnfds() {
 		return this.vnfds;
 	}
-	public void setVnfds(List<Integer> vnfds) {
+	public void setVnfds(List<VNFDescriptor> vnfds) {
 		this.vnfds = vnfds;
 	}
 
@@ -73,6 +79,14 @@ public class ImageFile implements Serializable {
 
 	public void setLastModifiedDate(Date lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@Override
@@ -118,5 +132,15 @@ public class ImageFile implements Serializable {
 		return true;
 	}
 
+    public TreeNode getVnfdRoot() {
+    	TreeNode root = new DefaultTreeNode("ROOT", null);
+    	TreeNode vnfdRoot = new DefaultTreeNode("VNFD", root);
+    	for ( VNFDescriptor vnfd : vnfds ) {
+        	TreeNode vnfNode = new DefaultTreeNode(vnfd.getId(), vnfdRoot);
+           	TreeNode vnfNodeDesc = new DefaultTreeNode(vnfd.getVnfd().getDescription());
+           	vnfNode.getChildren().add(vnfNodeDesc);
+    	}
+    	return root;
+    }
 
 }

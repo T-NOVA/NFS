@@ -44,7 +44,7 @@ public class VNFDescriptor implements Serializable {
 
 	@Id @GeneratedValue 
 	private Integer id;
-	private String vnfId;
+	private boolean vnfCreated;
 	@NotNull private VNFD vnfd;
 	@Lob @Basic(fetch=FetchType.EAGER)
 	private String json;
@@ -56,6 +56,7 @@ public class VNFDescriptor implements Serializable {
 
 	public VNFDescriptor() {
 		super();
+	    vnfCreated=false;
 	}
 	public VNFDescriptor(String jsonVNFD) throws JsonSyntaxException {
 		json = jsonVNFD;
@@ -65,6 +66,7 @@ public class VNFDescriptor implements Serializable {
 	    JsonElement idElement = jsonElement.getAsJsonObject().get("id");
 	    if (idElement != null)
 	    	id = Integer.valueOf(idElement.getAsInt());
+	    vnfCreated=false;
 	}
 
 	public Integer getId() {
@@ -73,11 +75,17 @@ public class VNFDescriptor implements Serializable {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public String getVnfId() {
-		return vnfId;
+//	public String getVnfId() {
+//		return vnfId;
+//	}
+//	public void setVnfId(String vnfId) {
+//		this.vnfId = vnfId;
+//	}
+	public boolean isVnfCreated() {
+		return vnfCreated;
 	}
-	public void setVnfId(String vnfId) {
-		this.vnfId = vnfId;
+	public void setVnfCreated(boolean vnfCreated) {
+		this.vnfCreated = vnfCreated;
 	}
 	public VNFD getVnfd() {
 		return vnfd;

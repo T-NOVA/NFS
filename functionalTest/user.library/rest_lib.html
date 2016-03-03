@@ -4114,6 +4114,139 @@ ${resp.content}\n<br>
 <td></td>
 <td></td>
 </tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"><a name="keyword_Head VNF file">Head VNF file</a></td>
+<td>[Arguments]</td>
+<td>${fileName}</td>
+<td>${file}=${EMPTY}</td>
+<td>${possibleCode}=${EMPTY}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Log</td>
+<td>==================== \ Head file ${fileName}</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Comment</td>
+<td>====================</td>
+<td>Prepare and send http request</td>
+<td>====================</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Create NFS Session</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${resp}=</td>
+<td>Head Request</td>
+<td>NFS_SESSION</td>
+<td>/files/${fileName}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Delete All Sessions</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Comment</td>
+<td>====================</td>
+<td>Check Response</td>
+<td>====================</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Return From Keyword If</td>
+<td>'${possibleCode}'=='${resp.status_code}'</td>
+<td>${resp}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Should Be Equal As Strings</td>
+<td>${resp.status_code}</td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Should Be Equal As Strings</td>
+<td>${resp.reason}</td>
+<td>OK</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Log</td>
+<td>headers=${resp.headers}</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${content}=</td>
+<td>Get From Dictionary</td>
+<td>${resp.headers}</td>
+<td>content-type</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Should Contain</td>
+<td>${content}</td>
+<td>text/plain</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${len}=</td>
+<td>Get From Dictionary</td>
+<td>${resp.headers}</td>
+<td>content-length</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Should Not Be Equal As Strings</td>
+<td>${len}</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${fileLen}=</td>
+<td>Get Length</td>
+<td>${file}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Should Be Equal As Strings</td>
+<td>${len}</td>
+<td>${fileLen}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>[Return]</td>
+<td>${resp}</td>
+<td></td>
+<td></td>
+</tr>
 </table>
 </body>
 </html>

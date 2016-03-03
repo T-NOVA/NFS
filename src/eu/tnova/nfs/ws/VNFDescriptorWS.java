@@ -16,18 +16,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.cxf.interceptor.InInterceptors;
-import org.apache.cxf.interceptor.OutInterceptors;
 import org.apache.logging.log4j.Logger;
-
 import com.google.gson.Gson;
-
 import eu.tnova.nfs.entity.VNFDescriptor;
 import eu.tnova.nfs.exception.ValidationException;
 import eu.tnova.nfs.valves.GatekeeperAuthenticationValve;
 import eu.tnova.nfs.ws.entity.VNFDListResponse;
 import eu.tnova.nfs.ws.entity.VNFDResponse;
+import eu.tnova.nfs.ws.orchestrator.OrchestratorOperationTypeEnum;
+
+//import org.apache.cxf.interceptor.InInterceptors;
+//import org.apache.cxf.interceptor.OutInterceptors;
 
 @Stateless
 //@InInterceptors(interceptors={"org.apache.cxf.interceptor.LoggingInInterceptor"})
@@ -92,7 +91,7 @@ public class VNFDescriptorWS implements VNFDescriptorWSInterface {
 	public Response get_VNFDescriptor(Integer vnfdId) {
 		log.info("Get VNF Descriptor : {}",vnfdId);
 		try {
-			String vnfd = service.getVNFDescriptor(vnfdId);
+			String vnfd = service.getVNFDescriptor(vnfdId).getJson();
 			log.debug("{}",vnfd);
 			return Response.status(Status.OK).entity(vnfd).build();				
 		} catch (ValidationException e) {

@@ -23,8 +23,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.cxf.interceptor.InInterceptors;
-import org.apache.cxf.interceptor.OutInterceptors;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
@@ -37,6 +35,10 @@ import eu.tnova.nfs.exception.ValidationException;
 import eu.tnova.nfs.producers.EnvValue;
 import eu.tnova.nfs.valves.GatekeeperAuthenticationValve;
 import eu.tnova.nfs.ws.entity.VNFFileResponse;
+import eu.tnova.nfs.ws.orchestrator.OrchestratorOperationTypeEnum;
+
+//import org.apache.cxf.interceptor.InInterceptors;
+//import org.apache.cxf.interceptor.OutInterceptors;
 
 @Stateless
 //@InInterceptors(interceptors={"org.apache.cxf.interceptor.LoggingInInterceptor"})
@@ -56,6 +58,23 @@ public class VNFFileWS implements VNFFileWSInterface {
 	@PreDestroy
 	public void destroy() {
 		executorService.shutdownNow();
+	}
+
+	@Override
+	public Response head_VNFFile(String fileName) {
+		try {
+			log.info("Head VNF File : {}",fileName);
+			VNFFile vnfFile = serviceBean.getVNFFile(fileName);
+			String body = "";
+			ResponseBuilder builder = Response.status(Status.OK)
+					.header("Content-Type", MediaType.TEXT_PLAIN)
+					.header("Content-Length", vnfFile.getFile(storePath).length());
+			return builder.entity(body).build();
+		} catch (ValidationException e) {
+			log.warn(e.getMessage());
+			return Response.status(e.getStatus()).entity(e.getMessage()).
+					type(MediaType.TEXT_PLAIN).build();
+		}
 	}
 
 	@Override
@@ -101,7 +120,6 @@ public class VNFFileWS implements VNFFileWSInterface {
 					type(MediaType.TEXT_PLAIN).build();
 		}
 	}
-	
 	@Override
 	public Response update_VNFFile(String fileName, Attachment attachment) {
 		File file = null, tmpFile = null;
@@ -148,7 +166,6 @@ public class VNFFileWS implements VNFFileWSInterface {
 					type(MediaType.TEXT_PLAIN).build();
 		}
 	}
-
 	@Override
 	public Response delete_VNFFile(String fileName) {
 		try {
@@ -185,14 +202,13 @@ public class VNFFileWS implements VNFFileWSInterface {
 					type(MediaType.TEXT_PLAIN).build();
 		}
 	}
-
 	@Override
 	public Response download_VNFFile(String fileName, String contentType) {
 		try {
 			log.info("Download VNF File : {}",fileName);
 			VNFFile vnfFile = serviceBean.downloadVNFFile(fileName, contentType);
 			ResponseBuilder builder = Response.status(Status.OK);
-			builder.header("Content-Disposition", "attachment; filename="+fileName);
+			builder.header("Content-Disposition", "attachment; filename=\""+fileName+"\"");
 
 			if ( contentType==null ) {
 				builder.header("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
@@ -240,7 +256,7 @@ public class VNFFileWS implements VNFFileWSInterface {
 	public Long writeFile(VNFFile vnfFile, InputStream inputStream)
 			throws IOException, ValidationException {
 		log.debug("writeFile {}", vnfFile.getName() );
-		Long size = vnfFile.writeFile(inputStream, storePath);
+		Long size = vnfFile.writeFile(inputStream, storePath, true);
 		log.info("end writeFile {}, size={}, MD5={}",
 				vnfFile.getName(), size, vnfFile.getMd5Sum() );
 		return size;

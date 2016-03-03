@@ -55,7 +55,7 @@ td.name, th.name {
 </tr>
 <tr>
 <td class="name">Suite Setup</td>
-<td>Delete All VNF files</td>
+<td></td>
 <td></td>
 <td></td>
 <td></td>
@@ -146,6 +146,27 @@ td.name, th.name {
 <table border="1" id="testcase">
 <tr>
 <th class="name" colspan="5">Test Cases</th>
+</tr>
+<tr>
+<td class="name"><a name="test_Remove All">Remove All</a></td>
+<td>Delete All VNFD</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Delete All VNF files</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
 <td class="name"><a name="test_Get List when NFS empty">Get List when NFS empty</a></td>
@@ -355,6 +376,62 @@ td.name, th.name {
 <td>...</td>
 <td>1</td>
 <td>qcow</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"><a name="test_Head images">Head images</a></td>
+<td>[Tags]</td>
+<td>FILESOP</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${fileName}=</td>
+<td>Get From List</td>
+<td>${VNFImageList}</td>
+<td>0</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${file}=</td>
+<td>Get Binary File</td>
+<td>${FILE_DIR}${/}${fileName}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Head VNF file</td>
+<td>${fileName}</td>
+<td>${file}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${fileName}=</td>
+<td>Get From List</td>
+<td>${VNFImageList}</td>
+<td>1</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${file}=</td>
+<td>Get Binary File</td>
+<td>${FILE_DIR}${/}${fileName}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Head VNF file</td>
+<td>${fileName}</td>
+<td>${file}</td>
 <td></td>
 </tr>
 <tr>

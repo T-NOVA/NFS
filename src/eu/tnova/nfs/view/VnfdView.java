@@ -2,6 +2,7 @@ package eu.tnova.nfs.view;
 
 import eu.tnova.nfs.entity.VNFDescriptor;
 import eu.tnova.nfs.exception.ValidationException;
+import eu.tnova.nfs.producers.EnvValue;
 import eu.tnova.nfs.ws.ServiceBean;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
@@ -29,6 +31,8 @@ public class VnfdView implements Serializable {
 	private List<Vnfd> vnfds = new ArrayList<Vnfd>();
 	private Vnfd selectedVnfd;
 	private UploadedFile file;
+	@Inject @EnvValue("nfs.storePath")
+	private String storePath;
 
 	@PostConstruct
 	public void init() {
@@ -38,7 +42,7 @@ public class VnfdView implements Serializable {
 	public void refreshVnfds() {
 		this.vnfds.clear();
 		for (VNFDescriptor vnfDescriptor : this.serviceBean.getVNFDescriptors()) {
-			this.vnfds.add(new Vnfd(vnfDescriptor));
+			this.vnfds.add(new Vnfd(vnfDescriptor,storePath));
 		}
 		if (this.vnfds.size() != 0) {
 			this.selectedVnfd = ((Vnfd)this.vnfds.get(0));
@@ -100,4 +104,5 @@ public class VnfdView implements Serializable {
 			RequestContext.getCurrentInstance().showMessageInDialog(message);
 		}
 	}
-}
+	
+ }

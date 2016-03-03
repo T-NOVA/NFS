@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import eu.tnova.nfs.exception.ValidationException;
 
+@SuppressWarnings("serial")
 @Entity
 @XmlRootElement(name = "file")
 @NamedQueries({
@@ -31,7 +33,7 @@ import eu.tnova.nfs.exception.ValidationException;
 	@NamedQuery(name = VNFFile.QUERY_READ_BY_PROVIDER, query = "select f from VNFFile f where f.providerId=:providerId"),
 	})
 
-public class VNFFile {
+public class VNFFile implements Serializable {
 	public static final String QUERY_READ_ALL     = "findAllVNFFiles";
 	public static final String QUERY_READ_BY_NAME = "findVNFFilesByName";
 	public static final String QUERY_READ_BY_PROVIDER = "findVNFFilesByProvider";
@@ -113,8 +115,8 @@ public class VNFFile {
 				", status=" + status
 				+ "]";
 	}
-	
-	public Long writeFile(InputStream inputStream, String storePath) 
+
+	public Long writeFile(InputStream inputStream, String storePath, boolean checkMd5Sum) 
 			throws IOException,ValidationException {
 		FileOutputStream os = new FileOutputStream(getFile(storePath));
 		MessageDigest digest = null;
@@ -137,13 +139,18 @@ public class VNFFile {
 			inputStream.close();
 		}
 		String md5Sum = convertByteArrayToHexString(digest.digest());
-		if ( !this.md5Sum.toUpperCase().equals(md5Sum.toUpperCase()) ) {
-			throw new ValidationException(
-					"wrong checksum : "+md5Sum+" instead "+this.md5Sum,
-					Status.CONFLICT, true);
+		if ( checkMd5Sum ) {
+			if ( !this.md5Sum.toUpperCase().equals(md5Sum.toUpperCase()) ) {
+				throw new ValidationException(
+						"wrong checksum : "+md5Sum+" instead "+this.md5Sum,
+						Status.CONFLICT, true);
+			}
+		} else {
+			this.md5Sum = md5Sum.toUpperCase();
 		}
 		return len;
 	}
+
 	private static String convertByteArrayToHexString (byte[] arrayBytes) { 
 		StringBuffer stringBuffer = new StringBuffer();
 		for (int i = 0; i < arrayBytes.length; i++) {

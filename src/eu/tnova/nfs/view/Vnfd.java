@@ -1,15 +1,18 @@
 package eu.tnova.nfs.view;
 
 import eu.tnova.nfs.entity.VNFDescriptor;
+import eu.tnova.nfs.entity.VNFFile;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @SuppressWarnings("serial")
 public class Vnfd implements Serializable {
 	private String vnfdId;
-	private String vnfId;
+	private boolean vnfCreated;
+//	private String vnfId;
 	private String providerId;
 	private String provider;
 	private String description;
@@ -19,13 +22,15 @@ public class Vnfd implements Serializable {
 	private String descriptorVersion;
 	private String version;
 	private String vnfd;
-	private List<String> files;
+	private List<String> files = new ArrayList<String>();
+	private List<ImageFile> images = new ArrayList<ImageFile>();
 
-	public Vnfd(VNFDescriptor vnfDescriptor) {
+	public Vnfd(VNFDescriptor vnfDescriptor, String storePath) {
 		vnfdId = vnfDescriptor.getId().toString();
-		vnfId = vnfDescriptor.getVnfId();
-		if (vnfId == null)
-			vnfId = "";
+		vnfCreated = vnfDescriptor.isVnfCreated();
+//		vnfId = vnfDescriptor.getVnfId();
+//		if (vnfId == null)
+//			vnfId = "";
 		providerId = vnfDescriptor.getVnfd().getProvider_id();
 		if (providerId == null)
 			providerId = "";
@@ -51,6 +56,9 @@ public class Vnfd implements Serializable {
 		if (vnfd == null)
 			vnfd = "";
 		files = vnfDescriptor.getvmImagesFileNames();
+		for ( VNFFile vnfFile : vnfDescriptor.getFiles() ) {
+			images.add( new ImageFile(vnfFile, storePath));
+		}
 	}
 
 	public String getVnfdId() {
@@ -60,11 +68,19 @@ public class Vnfd implements Serializable {
 		this.vnfdId = vnfdId;
 	}
 
-	public String getVnfId() {
-		return vnfId;
+//	public String getVnfId() {
+//		return vnfId;
+//	}
+//	public void setVnfId(String vnfId) {
+//		this.vnfId = vnfId;
+//	}
+
+	public boolean isVnfCreated() {
+		return vnfCreated;
 	}
-	public void setVnfId(String vnfId) {
-		this.vnfId = vnfId;
+
+	public void setVnfCreated(boolean vnfCreated) {
+		this.vnfCreated = vnfCreated;
 	}
 
 	public String getProviderId() {
@@ -128,6 +144,14 @@ public class Vnfd implements Serializable {
 	}
 	public void setVnfd(String vnfd) {
 		this.vnfd = vnfd;
+	}
+
+	public List<ImageFile> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ImageFile> images) {
+		this.images = images;
 	}
 
 	public List<String> getFiles() {

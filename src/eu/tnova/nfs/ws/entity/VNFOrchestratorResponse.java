@@ -1,63 +1,56 @@
 package eu.tnova.nfs.ws.entity;
 
-import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
 @XmlRootElement(name = "vnf")
 public class VNFOrchestratorResponse {
-	@SerializedName("id") @XmlElement(name="id")
-	private String vnfId;
 	@SerializedName("name") @XmlElement(name="name")
-	private String name;
-	@SerializedName("vnf-image") @XmlElement(name="vnf-image")
-	private String vnfImage;
+	private String namei;
 	@SerializedName("vnf-manager") @XmlElement(name="vnf-manager")
-	private String vnfManager;
+	private String vnfManageri;
 	@SerializedName("created_at") @XmlElement(name="created_at")
-	private Date creationDate;
+	private String creationDatei;
 	@SerializedName("updated_at") @XmlElement(name="updated_at")
-	private Date lastModificationDate;
-
+	private String lastModificationDatei;
+	@SerializedName("vnfd") @XmlElement(name="vnfd")
+	private JsonElement vnfdi ;
+	
 	public VNFOrchestratorResponse() {
 	}
 
-	public String getVnfId() {
-		return vnfId;
-	}
-	public void setVnfId(String vnfId) {
-		this.vnfId = vnfId;
-	}
 	public String getName() {
-		return name;
+		return namei;
 	}
 	public void setName(String name) {
-		this.name = name;
-	}
-	public String getVnfImage() {
-		return vnfImage;
-	}
-	public void setVnfImage(String vnfImage) {
-		this.vnfImage = vnfImage;
+		this.namei = name;
 	}
 	public String getVnfManager() {
-		return vnfManager;
+		return vnfManageri;
 	}
 	public void setVnfManager(String vnfManager) {
-		this.vnfManager = vnfManager;
+		this.vnfManageri = vnfManager;
 	}
-	public Date getCreationDate() {
-		return creationDate;
+	public String getCreationDate() {
+		return creationDatei;
 	}
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
+	public void setCreationDate(String creationDate) {
+		this.creationDatei = creationDate;
 	}
-	public Date getLastModificationDate() {
-		return lastModificationDate;
+	public String getLastModificationDate() {
+		return lastModificationDatei;
 	}
-	public void setLastModificationDate(Date lastModificationDate) {
-		this.lastModificationDate = lastModificationDate;
+	public void setLastModificationDate(String lastModificationDate) {
+		this.lastModificationDatei = lastModificationDate;
+	}
+	public JsonElement getVnfd() {
+		return vnfdi;
+	}
+	public void setVnfd(JsonElement vnfd) {
+		this.vnfdi = vnfd;
 	}
 
 }

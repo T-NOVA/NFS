@@ -131,22 +131,29 @@ td.name, th.name {
 <tr>
 <td class="name"></td>
 <td>Set Global Variable</td>
+<td>${fileNameDescPROVA}</td>
+<td>vnfdPROVA.json</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Set Global Variable</td>
 <td>${fileNameDesc1}</td>
-<td>vnfd1.json</td>
+<td>vnfd1.json.result.after.upload</td>
 <td></td>
 </tr>
 <tr>
 <td class="name"></td>
 <td>Set Global Variable</td>
 <td>${fileNameDesc2}</td>
-<td>vnfd2.json</td>
+<td>vnfd2.json.result.after.upload</td>
 <td></td>
 </tr>
 <tr>
 <td class="name"></td>
 <td>Set Global Variable</td>
 <td>${fileNameDesc3}</td>
-<td>vnfd3.json</td>
+<td>vnfd3.json.result.after.upload</td>
 <td></td>
 </tr>
 <tr>
@@ -200,6 +207,13 @@ td.name, th.name {
 </tr>
 <tr>
 <td class="name"></td>
+<td>Set Global Variable</td>
+<td>${fileVNFList}</td>
+<td>vnfList.json</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
 <td>Start Orchestrator Stub</td>
 <td></td>
 <td></td>
@@ -237,6 +251,132 @@ td.name, th.name {
 <td class="name"></td>
 <td>Remove File</td>
 <td>${FILE_DIR}${/}*.MOD.*</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"><a name="keyword_Upload Image">Upload Image</a></td>
+<td>[Arguments]</td>
+<td>${fileName}</td>
+<td>${providerId}=${EMPTY}</td>
+<td>${imageType}=${EMPTY}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${file}=</td>
+<td>Get Binary File</td>
+<td>${FILE_DIR}${/}${filename}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${md5sum}=</td>
+<td>md5_for_file</td>
+<td>${FILE_DIR}</td>
+<td>${filename}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Upload file</td>
+<td>${fileName}</td>
+<td>${file}</td>
+<td>${md5sum}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>...</td>
+<td>${providerId}</td>
+<td>${imageType}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Run Keyword If</td>
+<td>'${NFS_ADDRESS}'=='${LOCALHOST}'</td>
+<td>File Should Exist</td>
+<td>${STORE_DIR}${/}${fileName}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Run Keyword If</td>
+<td>'${NFS_ADDRESS}'=='${LOCALHOST}'</td>
+<td>File Should Not Be Empty</td>
+<td>${STORE_DIR}${/}${fileName}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td class="name"><a name="keyword_Get VNF File">Get VNF File</a></td>
+<td>[Arguments]</td>
+<td>${vnfFile}</td>
+<td>${vnfdFile}</td>
+<td>${vnfdId}=${EMPTY}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Copy File</td>
+<td>${FILE_DIR}${/}${vnfdFile}</td>
+<td>${FILE_DIR}${/}${vnfdFile}.MOD</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Run Keyword If</td>
+<td>'${vnfdId}'!='${EMPTY}'</td>
+<td>Set file Value</td>
+<td>${FILE_DIR}${/}${vnfdFile}.MOD</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>...</td>
+<td>id</td>
+<td>${vnfdId}</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${fileDesc}=</td>
+<td>Get Json File</td>
+<td>${FILE_DIR}${/}${vnfdFile}.MOD</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Copy File</td>
+<td>${FILE_DIR}${/}${vnfFile}</td>
+<td>${FILE_DIR}${/}${vnfFile}.MOD</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>Set file Value</td>
+<td>${FILE_DIR}${/}${vnfFile}.MOD</td>
+<td>vnfd</td>
+<td>${fileDesc}</td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>${data}=</td>
+<td>Get file</td>
+<td>${FILE_DIR}${/}${vnfFile}.MOD</td>
+<td></td>
+</tr>
+<tr>
+<td class="name"></td>
+<td>[Return]</td>
+<td>${data}</td>
 <td></td>
 <td></td>
 </tr>

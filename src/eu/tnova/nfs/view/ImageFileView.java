@@ -1,9 +1,10 @@
 package eu.tnova.nfs.view;
 
+import eu.tnova.nfs.entity.VNFDescriptor;
 import eu.tnova.nfs.entity.VNFFile;
 import eu.tnova.nfs.producers.EnvValue;
-import eu.tnova.nfs.ws.OrchestratorOperationTypeEnum;
 import eu.tnova.nfs.ws.ServiceBean;
+import eu.tnova.nfs.ws.orchestrator.OrchestratorOperationTypeEnum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +23,9 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
+import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
 
 @SuppressWarnings("serial")
@@ -59,6 +62,8 @@ public class ImageFileView implements Serializable {
 	}
 
 	public List<ImageFile> getImageFiles() {
+		if ( imageFiles.isEmpty() )
+			refreshImageFiles();
 		return imageFiles;
 	}
 	public void setImageFiles(List<ImageFile> imageFiles) {
@@ -95,8 +100,8 @@ public class ImageFileView implements Serializable {
 		file = event.getFile();
 		VNFFile vnfFile = null;
 		try {
-			vnfFile = serviceBean.uploadVNFFile(file.getFileName(),null, null, null);
-			vnfFile.writeFile(file.getInputstream(), storePath);
+			vnfFile = serviceBean.uploadVNFFile(file.getFileName(),"---", null, null);
+			vnfFile.writeFile(file.getInputstream(), storePath, false);
 			serviceBean.endUploadVNFFile(vnfFile);
 			serviceBean.sendNotificationToOrchestrator(
 					OrchestratorOperationTypeEnum.CREATE, vnfFile, null);
@@ -141,4 +146,5 @@ public class ImageFileView implements Serializable {
 			donwloadVNFFile = null;
 		}
 	}
+	
 }

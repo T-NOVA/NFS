@@ -19,10 +19,12 @@ public class VNFBrokerageResponse {
 //		Billing model
 //		Key-flavor/Assurance parameters
 //		Constituent VDU
-	  @SerializedName("vnf_id") @XmlElement(name="vnf_id")
-	  private String vnfId;
+//	  @SerializedName("vnf_id") @XmlElement(name="vnf_id")
+//	  private String vnfId;
 	  @SerializedName("vnfd_id") @XmlElement(name="vnfd_id")
 	  private Integer vnfdId;
+	  @SerializedName("available") @XmlElement(name="available")
+	  private boolean vnfAvailable;
 	  @SerializedName("provider_id")  @XmlElement(name="provider_id")
 	  private String provider_id;
 	  @SerializedName("provider") @XmlElement(name="provider")
@@ -38,7 +40,8 @@ public class VNFBrokerageResponse {
 	}
 
 	public VNFBrokerageResponse(VNFDescriptor vnfd) {
-		this.vnfId = vnfd.getVnfId();
+//		this.vnfId = vnfd.getVnfId();
+		this.vnfAvailable = vnfd.isVnfCreated();
 		this.vnfdId = vnfd.getId();
 		this.provider_id = vnfd.getVnfd().getProvider_id();
 		this.provider = vnfd.getVnfd().getProvider();
@@ -47,13 +50,13 @@ public class VNFBrokerageResponse {
 		this.deploymentFlavour = vnfd.getVnfd().getDeploymentFlavour();
 	}
 
-	public String getVnfId() {
-		return vnfId;
-	}
-
-	public void setVnfId(String vnfId) {
-		this.vnfId = vnfId;
-	}
+//	public String getVnfId() {
+//		return vnfId;
+//	}
+//
+//	public void setVnfId(String vnfId) {
+//		this.vnfId = vnfId;
+//	}
 
 	public Integer getVnfdId() {
 		return vnfdId;
@@ -101,6 +104,14 @@ public class VNFBrokerageResponse {
 
 	public void setDeploymentFlavour(List<DeploymentFlavour> deploymentFlavour) {
 		this.deploymentFlavour = deploymentFlavour;
+	}
+
+	public boolean isVnfAvailable() {
+		return vnfAvailable;
+	}
+
+	public void setVnfAvailable(boolean vnfAvailable) {
+		this.vnfAvailable = vnfAvailable;
 	}
 
 

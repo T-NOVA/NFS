@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -27,6 +28,17 @@ import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 @Description(value = "Network Function Store - Virtual Network Functions Files", 
 	target = DocTarget.RESOURCE)
 public interface VNFFileWSInterface {
+
+	@HEAD
+	@Path("/{fileName}")
+	@Consumes(MediaType.MEDIA_TYPE_WILDCARD)
+	@Produces(MediaType.TEXT_PLAIN)
+	@Descriptions({
+		   @Description(value = "Head Virtual Network Function Image file", target = DocTarget.METHOD),
+		   @Description(value = "Name of Virtual Network Function image file", target = DocTarget.PARAM),
+		})
+	public Response head_VNFFile(
+		@Description("name of file") @PathParam("fileName") @NotNull String fileName );
 
 	@POST 
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

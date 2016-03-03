@@ -45,7 +45,7 @@ public class NetworkFunctionStoreDescriptorValidator {
 	public VNFDescriptor validateGet (Integer vnfd_Id) 
 			throws ValidationException {
 		if ( vnfd_Id==null )
-			throw new ValidationException("Delete VNF without Descriptor id");
+			throw new ValidationException("validate VNF Descriptor without id");
 		VNFDescriptor vnfd = em.find(VNFDescriptor.class, vnfd_Id);
 		if ( vnfd==null ) 
 			throw new ValidationException("Not found VNF Descriptor with id "+vnfd_Id, 
