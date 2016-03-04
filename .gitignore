@@ -12,3 +12,8 @@
 /lib - OLD/
 /server/
 /.tern-project
+/expected.json
+/req.json
+/vnfd.json
+/vnfd2.json
+/vnfds.json

@@ -62,16 +62,18 @@ public class VNFFileWS implements VNFFileWSInterface {
 
 	@Override
 	public Response head_VNFFile(String fileName) {
-		try{
+		try {
 			log.info("Head VNF File : {}",fileName);
 			VNFFile vnfFile = serviceBean.getVNFFile(fileName);
-			ResponseBuilder builder = Response.noContent();
-			builder.header("Content-Type", MediaType.TEXT_PLAIN)
-				.header("Content-Length", vnfFile.getFile(storePath).length());
-				return builder.build();
-		} catch(ValidationException e){
+			String body = "";
+			ResponseBuilder builder = Response.status(Status.OK)
+					.header("Content-Type", MediaType.TEXT_PLAIN)
+					.header("Content-Length", vnfFile.getFile(storePath).length());
+			return builder.entity(body).build();
+		} catch (ValidationException e) {
 			log.warn(e.getMessage());
-			return Response.status(e.getStatus()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			return Response.status(e.getStatus()).entity(e.getMessage()).
+					type(MediaType.TEXT_PLAIN).build();
 		}
 	}
 
