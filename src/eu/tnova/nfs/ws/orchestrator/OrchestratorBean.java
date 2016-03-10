@@ -245,6 +245,7 @@ public class OrchestratorBean implements OrchestratorBeanInterface {
 		case UPDATE:
 			try {
 				vnfd = service.getVNFDescriptor(vnf.getVnfdId());
+				log.info("vnf created = {}",vnfd.isVnfCreated());
 			} catch (ValidationException e) {
 				log.warn("timerHandler {} : not found vnfd {} -> remove timer", 
 						vnf.getOperation(), vnf.getVnfdId());
@@ -257,11 +258,15 @@ public class OrchestratorBean implements OrchestratorBeanInterface {
 		try {
 			switch (vnf.getOperation()) {
 			case CREATE:
-				orchestratorClient.create_VNF(vnfd, vnf.getUserToker());
-				service.updateVNFDescriptor(vnfd);
+				if ( !vnfd.isVnfCreated() ) {
+					orchestratorClient.create_VNF(vnfd, vnf.getUserToker());
+					service.updateVNFDescriptor(vnfd);
+				}
 				break;
 			case UPDATE:
-				orchestratorClient.update_VNF(vnfd, vnf.getUserToker());
+				if ( vnfd.isVnfCreated() ) {
+					orchestratorClient.update_VNF(vnfd, vnf.getUserToker());
+				}
 				break;
 			case DELETE:
 				vnfd = new VNFDescriptor();
@@ -350,8 +355,10 @@ public class OrchestratorBean implements OrchestratorBeanInterface {
 			log.error("alignVNF : error get VNF list from orchestrator : {}", 
 					e.getMessage());
 		}
-		log.debug("alignVNF : NFStore VNFD = {}",vnfds.keySet());
-		log.debug("alignVNF : orchestartor VNFD = {}",orchestratorVnfds.keySet());
+		log.debug("alignVNF : {} NFStore VNFD = {}",
+				vnfds.size(), vnfds.keySet());
+		log.debug("alignVNF : {} orchestartor VNFD = {}",
+				orchestratorVnfds.size(), orchestratorVnfds.keySet());
 		// check descriptors
 		for ( VNFDescriptor vnfd : vnfds.values() ) {
 			boolean allFilesAvailable = allFilesAreAvailable(vnfd);
@@ -367,6 +374,8 @@ public class OrchestratorBean implements OrchestratorBeanInterface {
 					}
 				} else {
 					// VNF not available on orchestrator
+					vnfd.setVnfCreated(false);
+					service.updateVNFDescriptor(vnfd);
 					vnf = new OrchestratorVNF(
 							vnfd.getId(), OrchestratorOperationTypeEnum.CREATE, null);
 					startPeriodicTimer(vnf, INITIAL_ALIGN_POLLING_TIME);
